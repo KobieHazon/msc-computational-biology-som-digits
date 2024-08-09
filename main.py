@@ -2,6 +2,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
+import matplotlib
 import numpy as np
 
 from src.digits_images_reader import DigitsImagesReader
@@ -21,8 +22,10 @@ def main(digits_images_path: Path, digits_images_keys_path: Path, seed: Optional
 
     som_result = digits_images_som.run_clustering()
 
-    som_result.show_dominant_digit()
-    som_result.show_neurons_graphically()
+    som_result.show_digit_confidence_matrix()
+    som_result.show_dominant_digit_matrix()
+    som_result.show_neurons_matrix_graphically()
+    time.sleep(100)
 
 
 if __name__ == '__main__':
