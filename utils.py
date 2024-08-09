@@ -10,9 +10,8 @@ def matrix_gaussian_weights(center, sigma, x_indices: np.ndarray, y_indices: np.
     # TODO: refactor to prevent code similarity to minisom
     """Returns a Gaussian centered in center."""
     d = 2 * sigma * sigma
-    ax = np.exp(-np.power(x_indices - x_indices.T[center], 2) / d)
-    ay = np.exp(-np.power(y_indices - y_indices.T[center], 2) / d)
-    return (ax * ay).T
+    return np.exp((-np.power(x_indices - x_indices.T[center], 2) / d) +
+                  (-np.power(y_indices - y_indices.T[center], 2) / d)).T
 
 
 def plot_frequency_matrix(location_to_frequency: Dict[Tuple[int, int], Counter[int]], matrix_shape: Tuple[int, int]):
@@ -21,12 +20,9 @@ def plot_frequency_matrix(location_to_frequency: Dict[Tuple[int, int], Counter[i
 
     for (row, col), counter in location_to_frequency.items():
         most_common_element, count = counter.most_common(1)[0]
-        dominant_digit_percentage = math.ceil(100 * count / sum(counter.values()))
-        neurons_common_digit_string[row, col] = f"{int(most_common_element)}({dominant_digit_percentage}%)"
-        percentage_matrix[row, col] = dominant_digit_percentage
-
-    normalized_percentages = plt.Normalize(percentage_matrix.min(), percentage_matrix.max())
-    cell_colormap = matplotlib.colormaps['Blues']
+        dominant_digit_prob = count / sum(counter.values())
+        neurons_common_digit_string[row, col] = f"{int(most_common_element)}({math.ceil(100 * dominant_digit_prob)}%)"
+        percentage_matrix[row, col] = dominant_digit_prob
 
     fig, ax = plt.subplots()
     ax.axis('off')
@@ -35,9 +31,8 @@ def plot_frequency_matrix(location_to_frequency: Dict[Tuple[int, int], Counter[i
     table.set_fontsize(10)
     table.scale(1.2, 1.2)
 
+    cell_colormap = matplotlib.colormaps['Blues']
     for (i, j), cell in table.get_celld().items():
-        if i == 0 or j == -1:
-            continue  # Skip the table header or index cells
-        cell.set_facecolor(cell_colormap(normalized_percentages(percentage_matrix[i - 1, j])))
+        cell.set_facecolor(cell_colormap(percentage_matrix[i, j]))
 
     plt.show()

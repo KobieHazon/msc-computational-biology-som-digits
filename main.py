@@ -27,5 +27,5 @@ def main(digits_images_path: Path, digits_images_keys_path: Path, seed: Optional
 
 if __name__ == '__main__':
     start_time = time.time()
-    main(DIGITS_FLATTENED_IMAGES_CSV_PATH, DIGITS_IMAGES_KEYS_CSV_PATH)
+    main(DIGITS_FLATTENED_IMAGES_CSV_PATH, DIGITS_IMAGES_KEYS_CSV_PATH, 1999)
     print(f"finished running in {time.time() - start_time} seconds")

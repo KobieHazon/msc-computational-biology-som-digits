@@ -57,7 +57,7 @@ class DigitsImagesSOM:
     NEIGHBORHOOD_SIZE: float = 5  # TODO: parameter for report
 
     # TODO: find out if our implementation is suitable for epochs or not
-    TRAIN_ITERATIONS: int = 10  # TODO: parameter for report
+    TRAIN_ITERATIONS: int = 5  # TODO: parameter for report
     LEARNING_RATE: float = 0.5  # TODO: parameter for report
 
     def __init__(self, digits_images_reader: DigitsImagesReader):
@@ -79,23 +79,20 @@ class DigitsImagesSOM:
         # TODO: should we normalize the weights?
 
     def get_closest_neuron(self, to_image: np.array) -> Tuple[int, int]:
-        neuron_distances = np.linalg.norm(np.subtract(to_image, self._neurons), axis=-1, ord=2)
-        closest_neuron_flattened_index = np.argmin(neuron_distances)
-        closest_neuron_index = np.unravel_index(closest_neuron_flattened_index,
-                                                (self.NEURON_MESH_WIDTH, self.NEURON_MESH_HEIGHT))
-        closest_neuron_index = (int(closest_neuron_index[0]), int(closest_neuron_index[1]))
-        return closest_neuron_index
+        neurons_distance = self._neurons - to_image
+        squared_distances = np.einsum('ijk,ijk->ij', neurons_distance, neurons_distance)
+        closest_neuron_flattened_index = np.argmin(squared_distances)
+
+        return divmod(closest_neuron_flattened_index, self.NEURON_MESH_HEIGHT)
 
     def _clustering_step(self, digit_image: np.array, iteration_decay: float, neighborhood_decay: float):
         closest_neuron = self.get_closest_neuron(digit_image)
-
         neighborhood_weights = iteration_decay * matrix_gaussian_weights(closest_neuron,
                                                                          neighborhood_decay,
                                                                          self._neuron_x_indices,
                                                                          self._neuron_y_indices)  # TODO: parameter for report(gaussian)
 
-        neuron_difference = digit_image - self._neurons
-        self._neurons += neighborhood_weights[:, :, np.newaxis] * neuron_difference  # TODO: parameter for report
+        self._neurons += neighborhood_weights[:, :, np.newaxis] * (digit_image - self._neurons)  # TODO: parameter for report
 
     def run_clustering(self) -> _DigitsImagesSOMResult:
         self._init_clustering()
