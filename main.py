@@ -1,8 +1,10 @@
+"""
+Main module for running the SOM algorithm on the digit images problem
+"""
 import time
 from pathlib import Path
 from typing import Optional
 
-import matplotlib
 import numpy as np
 
 from src.digits_images_reader import DigitsImagesReader
@@ -12,8 +14,12 @@ DIGITS_FLATTENED_IMAGES_CSV_PATH: Path = Path("../Digits test.csv")
 DIGITS_IMAGES_KEYS_CSV_PATH: Path = Path("../Exercise 3 keys.csv")
 
 
-# TODO: add documentation
 def main(digits_images_path: Path, digits_images_keys_path: Path, seed: Optional[int] = None):
+    """
+    :param digits_images_path: path to the digit images csv file
+    :param digits_images_keys_path: path to the digit images answer-key csv file
+    :param seed: seed to use for reproducibility
+    """
     if seed:
         np.random.seed(seed)
 
@@ -25,10 +31,9 @@ def main(digits_images_path: Path, digits_images_keys_path: Path, seed: Optional
     som_result.show_digit_confidence_matrix()
     som_result.show_dominant_digit_matrix()
     som_result.show_neurons_matrix_graphically()
-    time.sleep(100)
+    som_result.plot_quantization_errors()
+    som_result.plot_topographical_errors()
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-    main(DIGITS_FLATTENED_IMAGES_CSV_PATH, DIGITS_IMAGES_KEYS_CSV_PATH, 1999)
-    print(f"finished running in {time.time() - start_time} seconds")
+    main(DIGITS_FLATTENED_IMAGES_CSV_PATH, DIGITS_IMAGES_KEYS_CSV_PATH)
