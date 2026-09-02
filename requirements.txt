@@ -1,4 +1,0 @@
-numpy~=1.24.0  # matrix calculations
-matplotlib~=3.7.0  # plotting graphs
-scikit-learn~=1.3.2  # pca decomposition
-tqdm~=4.66.0  # for loading bar
