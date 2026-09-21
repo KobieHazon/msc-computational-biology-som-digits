@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -48,7 +49,7 @@ def test_small_run_is_deterministic_and_uses_labels_only_for_evaluation(tmp_path
 
 
 @pytest.mark.integration
-def test_full_supplied_dataset_matches_recovered_seed_2024_baseline() -> None:
+def test_full_supplied_dataset_matches_seed_2024_baseline() -> None:
     dataset = DigitsDataset(
         REPOSITORY_ROOT / "data/digits-test.csv",
         REPOSITORY_ROOT / "data/digits-test-keys.csv",
@@ -64,15 +65,13 @@ def test_full_supplied_dataset_matches_recovered_seed_2024_baseline() -> None:
     assert summary["quantization_error_last"] == pytest.approx(5.474670576851817)
     assert summary["topographical_error_first"] == pytest.approx(0.1074)
     assert summary["topographical_error_last"] == pytest.approx(0.1861)
-    assert (
-        summary["neurons_sha256"]
-        == "5352fa640de82610d049801fc8846f4a6474fc1856feefc94461056fdff607a0"
+    # Preserve the original baseline identity, then compare every value with
+    # a tight tolerance for BLAS/platform floating-point rounding.
+    baseline = np.load(REPOSITORY_ROOT / "tests/fixtures/neurons.npy", allow_pickle=False)
+    assert hashlib.sha256(baseline.tobytes()).hexdigest() == (
+        "5352fa640de82610d049801fc8846f4a6474fc1856feefc94461056fdff607a0"
     )
-    assert (
-        summary["quantization_history_sha256"]
-        == "2a0834d9424b1b0e8af49a93af634981bbd9c6aeec79ba4da4c5952316407a4f"
-    )
-    assert (
-        summary["topographical_history_sha256"]
-        == "75922654524531ce9f34f548cc5243a33414838657c2b53dd4d148a2ca31a0f1"
-    )
+    np.testing.assert_allclose(result.neurons, baseline, rtol=1e-12, atol=1e-12)
+    history = np.loadtxt(REPOSITORY_ROOT / "tests/fixtures/metrics.csv", delimiter=",", skiprows=1)
+    np.testing.assert_allclose(result.quantization_errors, history[:, 1], rtol=1e-12, atol=1e-12)
+    np.testing.assert_array_equal(result.topographical_errors, history[:, 2])

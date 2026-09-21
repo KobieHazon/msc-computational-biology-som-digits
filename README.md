@@ -11,7 +11,7 @@ A 2024 CS MSc Computational Biology project that implements a self-organizing ma
 - tqdm for progress reporting
 - pytest, Ruff, and uv for validation and reproducibility
 
-The numerical dependencies are intentionally pinned to the recovered 2024 versions. The PCA solver, global NumPy random sequence, initialization, and repeated shuffling all affect the exact stochastic trajectory.
+The numerical dependencies are pinned for reproducibility. The PCA solver, global NumPy random sequence, initialization, and repeated shuffling all affect the exact stochastic trajectory.
 
 ## Algorithm
 
@@ -43,7 +43,7 @@ Run the complete reproducibility regression:
 uv run som-digits --seed 2024 --no-progress
 ```
 
-The validated run takes about 41 seconds on the validation machine. It occupies all 100 neurons, reaches majority-label purity `0.8107`, and changes quantization error from `6.620086` to `5.474671`. Topographical error changes from `0.1074` to `0.1861`; the final increase is retained as part of the recovered behavior rather than presented as an improvement.
+The validated run takes about 41 seconds on the validation machine. It occupies all 100 neurons, reaches majority-label purity `0.8107`, and changes quantization error from `6.620086` to `5.474671`. Topographical error changes from `0.1074` to `0.1861`; the final increase is retained as part of the behavior rather than presented as an improvement.
 
 The command writes:
 
@@ -73,23 +73,24 @@ Complete supplied-dataset regression:
 uv run pytest -m integration
 ```
 
-The integration test verifies the original seed-`2024` neuron and error-history hashes, not only rounded headline metrics.
+The integration test checks every neuron and all 50 error-history entries against the seed-`2024` baseline. It verifies the baseline's hash and allows only `1e-12` floating-point rounding differences in the trained values; the topographical history must match exactly.
+
+If a recent macOS release rejects the SciPy 1.15 binary with a `__thread_bss` loading error, use the compatible SciPy 1.10.1 runtime with Python 3.11:
+
+```sh
+uv run --python 3.11 --with scipy==1.10.1 python -m pytest
+uv run --python 3.11 --with scipy==1.10.1 python -m som_digits --seed 2024 --no-progress
+```
+
+The same full-data numerical regression applies to this runtime.
 
 ## Repository Structure
 
 - `assignment/exercise.pdf`: supplied exercise brief converted to a PDF
 - `data/`: supplied 10,000-image CSV and evaluation-only label CSV
 - `src/som_digits/`: input validation, SOM implementation, CLI, metrics, and visualization
-- `tests/`: fast behavior tests and complete-data numerical regression
-
-## Implementation notes
-
-The maintained version adds packaging, explicit deterministic execution, output files, validation, and documentation without replacing the original algorithm.
-
-No coauthored report or historical result files were recovered. The metrics above come from a regression-test seed and are identified accordingly. The local MiniSom checkout was not imported by the solution and is an unrelated third-party reference repository, so it is not included.
+- `tests/`: fast behavior tests, complete-data numerical regression, and the numerical baseline in `tests/fixtures/`
 
 ## Authorship
 
-Solution by Kobie Hazon and Daniel Ben Zion. The exercise and datasets are identified as supplied material solely to distinguish them from the coauthored solution; this label does not assert ownership by a university or any other institution.
-
-No repository-wide license is declared because the repository combines original work with supplied material whose reuse terms were not recorded.
+Solution by Kobie Hazon and Daniel Ben Zion.

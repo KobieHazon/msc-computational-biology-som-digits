@@ -1,4 +1,4 @@
-"""Recovered self-organizing-map algorithm with configurable run parameters."""
+"""self-organizing-map algorithm with configurable run parameters."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from .result import SOMResult
 
 @dataclass(frozen=True)
 class SOMConfig:
-    """Training parameters for the recovered SOM."""
+    """Training parameters for the SOM."""
 
     width: int = 10
     height: int = 10
@@ -80,7 +80,7 @@ class SelfOrganizingMap:
         if self.config.pca_components > max_components:
             raise ValueError(f"pca_components cannot exceed {max_components}")
 
-        # Leaving PCA's random_state unset is required for the recovered seed sequence.
+        # Leaving PCA's random_state unset is required for the seed sequence.
         pca = PCA(n_components=self.config.pca_components)
         reduced = pca.fit_transform(training_data)
         weights = np.random.rand(self.config.height * self.config.width, reduced.shape[1])

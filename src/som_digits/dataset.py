@@ -76,7 +76,7 @@ class DigitsDataset:
             self._joint["label"] = self.labels
             self._joint = np.ascontiguousarray(self._joint)
 
-        # The recovered implementation reshuffled before every epoch.
+        # The implementation reshuffled before every epoch.
         np.random.shuffle(self._joint)
         for row in self._joint:
             yield row["label"], row["image"]
