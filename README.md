@@ -88,7 +88,7 @@ The same full-data numerical regression applies to this runtime.
 
 - `assignment/exercise.pdf`: supplied exercise brief converted to a PDF
 - `data/`: supplied 10,000-image CSV and evaluation-only label CSV
-- `src/som_digits/`: input validation, SOM implementation, CLI, metrics, and visualization
+- `src/`: input validation, SOM implementation, CLI, metrics, and visualization
 - `tests/`: fast behavior tests, complete-data numerical regression, and the numerical baseline in `tests/fixtures/`
 
 ## Authorship
